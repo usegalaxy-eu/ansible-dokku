@@ -6,8 +6,10 @@
   changed_when: false
   register: sha256
 
+- ansible.builtin.debug:
+   msg: "Der ssh key ist {{ ssh_key }}, der user ist {{ username }}"
 - name: dokku ssh-keys:add for user {{ username }}
-  shell: echo "{{ ssh_key }}" | dokku ssh-keys:add {{ username }}
+  shell: "{{ 'docker exec dokku' if dokku_docker_install else '' }} dokku ssh-keys:add {{ username }} {{ ssh_key }}"
   no_log: true
-  when: force_add or ssh_key_list.find(sha256.stdout) == -1
+  when: force_add or ssh_key_list.find(sha256.stdout) == -1 
   changed_when: true
