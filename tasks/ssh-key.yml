@@ -9,7 +9,15 @@
 - ansible.builtin.debug:
    msg: "Der ssh key ist {{ ssh_key }}, der user ist {{ username }}"
 - name: dokku ssh-keys:add for user {{ username }}
-  shell: "{{ 'docker exec dokku' if dokku_docker_install else '' }} dokku ssh-keys:add {{ username }} {{ ssh_key }}"
+  shell: "echo {{ ssh_key }} | dokku ssh-keys:add {{ username }}"
   no_log: true
-  when: force_add or ssh_key_list.find(sha256.stdout) == -1 
+  when: force_add or ssh_key_list.find(sha256.stdout) == -1 and not dokku_docker_install
+  changed_when: true
+
+- name: dokku ssh-keys:add for user {{ username }} (Docker)
+  community.docker.docker_container_exec:
+    container: dokku
+    command: "/bin/bash -c 'echo {{ ssh_key }} | dokku ssh-keys:add {{ username }}'"
+  no_log: true
+  when: force_add or ssh_key_list.find(sha256.stdout) == -1  and dokku_docker_install
   changed_when: true
