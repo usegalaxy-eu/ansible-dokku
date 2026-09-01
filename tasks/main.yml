@@ -51,6 +51,7 @@
 
 
 - name: install packages
+  when: not dokku_docker_install
   ansible.builtin.package:
     name:
     - moreutils    # for plugin updates

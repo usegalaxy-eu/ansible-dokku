@@ -11,6 +11,7 @@
 - name: deploy dokku container
   ansible.builtin.docker_container:
     name: dokku
+    restart_policy: always
     image: "{{ dokku_image }}"
     env:
       DOKKU_HOSTNAME: "{{ dokku_hostname }}"
@@ -22,7 +23,7 @@
       - "{{ dokku_https_port | default(8443) }}: 443"
     volumes:
       - "{{ dokku_host_dir }}:/mnt/dokku"
-      - /var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: /usr/bin/docker exec dokku curl -fsS http://127.0.0.1:18080/_dokku/health
     
